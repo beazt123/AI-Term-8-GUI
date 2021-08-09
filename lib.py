@@ -24,4 +24,5 @@ ACCOUNT/POST DETAILS
 TARGET
 "#retweets",
 '''
-
+import spacy
+nlp = spacy.load("en_core_web_sm")

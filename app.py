@@ -1,9 +1,10 @@
 import re
 import numpy as np
-import pandas as pd
 import streamlit as st
 import torch
 from model import model
+from lib import nlp
+
 
 
 WEB_URL_REGEX = r"""(?i)\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)/)(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b/?(?!@)))"""
@@ -13,37 +14,6 @@ def extract_special_words(s, char = "#"):
 
 def findURLs(string):
     return re.findall(WEB_URL_REGEX, string)
-
-'''
-ACCOUNT/POST DETAILS
-"#followers",
-"#friends",
-"#favorites",
-
-TWEET DERIVED DATA
-"entity_count",
-"hashtag_count",
-"mention_count",
-"url_count",
-"tlen",
-"ratio_fav_#followers",
-"sentiment_ppn",
-
-
-TIME RELATED DATA
-"time_importance",
-"sine_hour",
-"cosine_hour",
-"sine_day",
-"cosine_day",
-"sine_day_of_week",
-"cosine_day_of_week"
-"weekend",
-
-TARGET
-"#retweets",
-'''
-
 
 
 st.write("""
@@ -66,9 +36,20 @@ Fill out the blanks below to predict how many retweets your tweet will get!
 # st.file_uploader('File uploader')
 # st.color_picker('Pick a color')
 
+# st.text('Fixed width text')
+# st.markdown('_Markdown_') # see *
+# st.latex(r''' e^{i\pi} + 1 = 0 ''')
+# st.write('Most objects') # df, err, func, keras!
+# st.write(['st', 'is <', 3]) # see *
+# st.title('My title')
+# st.header('My header')
+# st.subheader('My sub')
+# st.code('for i in range(8): foo()')
+
 with st.form("my_form"):
     st.write("Tweet Details")
     tweet = st.text_area('Tweet!')
+    st.markdown('For the next 2 blanks, consult this [link](http://sentistrength.wlv.ac.uk/TensiStrength.html) to check the positive & negavtive sentiments')
     positive_sentiment = st.number_input('SentiStrength Positive sentiment')
     negative_sentiment = st.number_input('SentiStrength Negative sentiment')
     followers = st.number_input('How many followers do u have? Are u famous? Or are you an influencer?')
@@ -91,7 +72,9 @@ with st.form("my_form"):
     weekend = day_of_week == 5 or day_of_week == 6
 
     # "entity_count",
-    entity_count = 0
+    entities = [(ent.text, ent.label_) for ent in nlp(tweet).ents]
+    # print(entities)
+    entity_count = len(entities)
 
     # "hashtag_count",
     hashtags = extract_special_words(tweet, "#")
@@ -132,7 +115,7 @@ with st.form("my_form"):
             url_count,
             tlen,
             ratio_fav_followers,
-            # time_importance,
+            0,# time_importance,
             sentiment_ppn,
             sine_hour,
             cosine_hour,
@@ -141,10 +124,15 @@ with st.form("my_form"):
             sine_day_of_week,
             cosine_day_of_week
         ]
-        X = torch.Tensor([1, 2,3,4, 5,....19])
-        
-        logRetweets = model(X)
-        numRetweets = np.exp(logRetweets)
-        print(numRetweets)
+        X = torch.Tensor(x)     
+        # print(X)   
+        # print(X.size())
+        # print(X.view(-1,1).size())
+
+        logRetweets = model(X.view(-1,1).T)
+        print(logRetweets.size())
+        numRetweets = np.exp(logRetweets.item())
+        st.text(f'Number of retweets is: {numRetweets}')
+        print("Done")
         # st.write("slider", slider_val, "checkbox", checkbox_val)
 

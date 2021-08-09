@@ -25,9 +25,9 @@ class FF(nn.Module): # Please change the name to your own network
 
     return x
 
-
-model = FF()
-checkpoint = torch.load("model_20210809_032813_35.pt")
+input_size = 18
+model = FF(input_size)
+checkpoint = torch.load("model_20210809_032813_35.pt", map_location="cpu")
 model.load_state_dict(checkpoint['model_state_dict'])
 model.eval()
 
