@@ -47,14 +47,14 @@ Fill out the blanks below to predict how many retweets your tweet will get!
 # st.code('for i in range(8): foo()')
 
 with st.form("my_form"):
-    st.write("Tweet Details")
+    st.markdown("## Tweet Details")
     tweet = st.text_area('Tweet!')
     st.markdown('For the next 2 blanks, consult this [link](http://sentistrength.wlv.ac.uk/TensiStrength.html) to check the positive & negavtive sentiments')
-    positive_sentiment = st.number_input('SentiStrength Positive sentiment')
-    negative_sentiment = st.number_input('SentiStrength Negative sentiment')
-    followers = st.number_input('How many followers do u have? Are u famous? Or are you an influencer?')
-    friends = st.number_input('How many friends do u have on Twitter?')
-    favorites = st.number_input('How many likes did u have for your tweet?')
+    positive_sentiment = st.number_input('SentiStrength Positive sentiment', step = 1)
+    negative_sentiment = st.number_input('SentiStrength Negative sentiment', step = 1)
+    followers = st.number_input('How many followers do u have? Are u famous? Or are you an influencer?', step = 1)
+    friends = st.number_input('How many friends do u have on Twitter?', step = 1)
+    favorites = st.number_input('How many likes did u have for your tweet?', step = 1)
 
     tweet_date = st.date_input('Date of tweet')
     tweet_time = st.time_input('Time of tweet')
@@ -75,18 +75,22 @@ with st.form("my_form"):
     entities = [(ent.text, ent.label_) for ent in nlp(tweet).ents]
     # print(entities)
     entity_count = len(entities)
+    print(f"detected entities: {entities}")
 
     # "hashtag_count",
     hashtags = extract_special_words(tweet, "#")
     hashtag_count = len(hashtags)
+    print(f"detected hashtags: {hashtags}")
 
     # "mention_count",
     mentions = extract_special_words(tweet, "@") # https://stackoverflow.com/questions/2527892/parsing-a-tweet-to-extract-hashtags-into-an-array
     mention_count = len(mentions)
+    print(f"detected mentions: {mentions}")
 
     # "url_count",
     urls = findURLs(tweet) # https://stackoverflow.com/questions/9760588/how-do-you-extract-a-url-from-a-string-using-python
     url_count = len(urls)
+    print(f"detected urls: {urls}")
 
     # "tlen",
     tlen = hashtag_count + mention_count + url_count + entity_count
@@ -115,7 +119,7 @@ with st.form("my_form"):
             url_count,
             tlen,
             ratio_fav_followers,
-            0,# time_importance,
+            1,# time_importance,
             sentiment_ppn,
             sine_hour,
             cosine_hour,
@@ -130,9 +134,6 @@ with st.form("my_form"):
         # print(X.view(-1,1).size())
 
         logRetweets = model(X.view(-1,1).T)
-        print(logRetweets.size())
         numRetweets = np.exp(logRetweets.item())
-        st.text(f'Number of retweets is: {numRetweets}')
-        print("Done")
-        # st.write("slider", slider_val, "checkbox", checkbox_val)
+        st.markdown(f'Number of retweets is:\t\t{numRetweets}')
 
