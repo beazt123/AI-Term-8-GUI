@@ -9,6 +9,7 @@ pandas = "*"
 torch = "*"
 streamlit = "*"
 spacy = "*"
+joblib = "*"
 
 [dev-packages]
 
